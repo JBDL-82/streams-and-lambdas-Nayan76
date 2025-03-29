@@ -1,6 +1,8 @@
 package q4;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 class Employee {
     private String name;
@@ -23,25 +25,30 @@ public class MaxSalaryFinder {
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        List<Employee> employees = new ArrayList<>();
 
-        System.out.println("Enter number of employees:");
-        int n = sc.nextInt();
-        sc.nextLine();
+        System.out.println("Enter employee data (type 'done' when finished):");
+        System.out.println("Format: Name,Salary (e.g. John,75000)");
 
-        for (int i = 0; i < n; i++) {
-            System.out.println("Enter employee " + (i+1) + " name:");
-            String name = sc.nextLine();
-            System.out.println("Enter employee " + (i+1) + " salary:");
-            double salary = sc.nextDouble();
-            sc.nextLine();
-            employees.add(new Employee(name, salary));
-        }
+        List<Employee> employees = Stream.generate(() -> {
+                    System.out.print("> ");
+                    return sc.nextLine();
+                })
+                .takeWhile(input -> !input.equalsIgnoreCase("done"))
+                .filter(input -> input.contains(","))
+                .map(input -> {
+                    String[] parts = input.split(",");
+                    return new Employee(parts[0].trim(),
+                            Double.parseDouble(parts[1].trim()));
+                })
+                .collect(Collectors.toList());
 
         Optional<Employee> maxEmployee = findMaxSalaryEmployee(employees);
+
+        System.out.println("\nResult:");
         maxEmployee.ifPresentOrElse(
-                e -> System.out.println("Highest paid employee: " + e.getName() + " ($" + e.getSalary() + ")"),
-                () -> System.out.println("No employees found")
+                emp -> System.out.printf("Highest paid employee: %s ($%,.2f)%n",
+                        emp.getName(), emp.getSalary()),
+                () -> System.out.println("No employees entered")
         );
     }
 }
