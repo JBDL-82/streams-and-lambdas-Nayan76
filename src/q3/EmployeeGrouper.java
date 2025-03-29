@@ -2,7 +2,7 @@ package q3;
 
 
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.stream.*;
 
 class Employee {
     private String name;
@@ -18,32 +18,40 @@ class Employee {
 }
 
 public class EmployeeGrouper {
-    public static Map<String, List<Employee>> groupByDepartment(List<Employee> employees) {
+    public static Map<String, List<String>> groupByDepartment(List<Employee> employees) {
         return employees.stream()
-                .collect(Collectors.groupingBy(Employee::getDepartment));
+                .collect(Collectors.groupingBy(
+                        Employee::getDepartment,
+                        Collectors.mapping(Employee::getName, Collectors.toList())
+                ));
     }
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        List<Employee> employees = new ArrayList<>();
 
         System.out.println("Enter number of employees:");
-        int n = sc.nextInt();
-        sc.nextLine();
+        int employeeCount = Integer.parseInt(sc.nextLine());
 
-        for (int i = 0; i < n; i++) {
-            System.out.println("Enter employee " + (i+1) + " name:");
-            String name = sc.nextLine();
-            System.out.println("Enter employee " + (i+1) + " department:");
-            String dept = sc.nextLine();
-            employees.add(new Employee(name, dept));
-        }
+        List<Employee> employees = IntStream.range(0, employeeCount)
+                .mapToObj(i -> {
+                    System.out.println("Enter employee " + (i+1) + " name:");
+                    String name = sc.nextLine();
+                    System.out.println("Enter employee " + (i+1) + " department:");
+                    String department = sc.nextLine();
+                    return new Employee(name, department);
+                })
+                .collect(Collectors.toList());
 
-        Map<String, List<Employee>> grouped = groupByDepartment(employees);
-        System.out.println("\nEmployees by department:");
-        grouped.forEach((dept, emps) -> {
-            System.out.println(dept + ":");
-            emps.forEach(e -> System.out.println("  " + e.getName()));
-        });
+        Map<String, List<String>> departmentGroups = groupByDepartment(employees);
+
+        System.out.println("\nEmployees grouped by department:");
+        departmentGroups.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .forEach(entry -> {
+                    System.out.println("\n" + entry.getKey() + ":");
+                    entry.getValue().stream()
+                            .sorted()
+                            .forEach(name -> System.out.println(" - " + name));
+                });
     }
 }
