@@ -27,7 +27,7 @@ public class MaxSalaryFinder {
         Scanner sc = new Scanner(System.in);
 
         System.out.println("Enter employee data (type 'done' when finished):");
-        System.out.println("Format: Name,Salary (e.g. John,75000)");
+//        System.out.println("Format: Name,Salary (e.g. John,75000)");
 
         List<Employee> employees = Stream.generate(() -> {
                     System.out.print("> ");
